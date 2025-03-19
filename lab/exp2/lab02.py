@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import json
+import re
 
 def filter_tags(tag):
     #to find the correct tag
@@ -85,3 +86,18 @@ for jour in list_paper:
 
 with open('nature_llm.json', 'w', encoding='utf-8')as file:
     json.dump(list_paper, file, indent=2, separators=(',',':'))
+
+volume_list = set();    
+for jour in list_paper:
+    if 'Nature' in jour['journal']:
+        for article in jour['papers']:
+            volume_list.append(re.search(r'\d+', article['volume-and-page-info'], flag = 0).group())
+        url = 'https://www.nature.com'+jour['papers'][0]['url']
+        response = requests.get(url)
+        response.encoding = 'utf-8'
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'lxml')
+        url_1 = 'https://www.nature.com/search?order=relevance&journal='
+        URL_2 = ''
+
+
